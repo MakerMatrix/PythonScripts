@@ -24,10 +24,6 @@
 from PIL import Image
 import sys
 
-# Variables to track whether the conversion is gray to color, or color to gray
-G2C = 0
-C2G = 1
-
 # Parse the command line
 try:
 	infile = sys.argv[1]
@@ -47,19 +43,19 @@ except:
 inType = inImg.mode
 if inType == "RGB" or inType == "RGBA":
 	inImg = inImg.convert("RGB")
-	converting = C2G
-	print("Converting", inImg.size, "RGB-encoded mono image to full-resolution grayscale.") 
+	converting = "C2G"
+	print("Converting", inImg.size, "RGB-encoded grayscale image to full-resolution gray.") 
 elif inType == "LA" or inType == "L":
 	inImg = inImg.convert("L")
-	converting = G2C
-	print("Converting", inImg.size, "Full-resolution grayscale image to RGB-encoded mono.")
+	converting = "G2C"
+	print("Converting", inImg.size, "full-resolution grayscale image to RGB-encoded grays.")
 else:
 	print( "You did not supply a suitable image.\nRGB, RGB/alpha, ")
 	print( "8-bit grayscale or 8-bit grayscale/alpha are supported.")
 	exit()
 
 # Do an rgb-encoded to grayscale conversion
-if converting == C2G:
+if converting == "C2G":
 	rgbPixels = inImg.load() # Create a pixel access object
 	# Create empty grayscale output image with the converted X-dimension
 	outImg = Image.new("L", (inImg.width*3, inImg.height))
@@ -72,7 +68,7 @@ if converting == C2G:
 				# Assign the new gray pixel into the correct full-res index
 				grayPixels[((x*3)+channel), y] = newPixel
 # Do a grayscale to rgb-encoded conversion				
-elif converting == G2C:
+elif converting == "G2C":
 	grayPixels = inImg.load() # Pixel access object
 	# Create empty RGB output image with the converted X-dimension
 	outImg = Image.new("RGB", (int(inImg.width/3), inImg.height)) #
