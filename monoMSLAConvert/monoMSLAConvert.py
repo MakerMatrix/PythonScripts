@@ -33,11 +33,14 @@ try:
 	outfile = sys.argv[2]
 except:
 	print ("Usage: " + sys.argv[0] + " <inFile> <outFile>")
-	exit()
+	exit(1)
 
 # Open the input image
-inImg = Image.open(infile)
-#print( infile + " is " + str(inImg.size) + " " + inImg.mode)
+try:
+	inImg = Image.open(infile)
+except:
+	print( "ERROR: Could not open " + infile + " for reading.")
+	exit(1)
 
 # Get the input image type and decide which way we will convert it
 inType = inImg.mode
@@ -83,4 +86,8 @@ elif converting == G2C:
 			rgbPixels[x, y] = newPixel # Assign the rgb-encoded pixel
 
 # Save the converted image
-outImg.save(outfile)
+try:
+	outImg.save(outfile)
+except:
+	print( "ERROR: Could not open " + outfile + " for writing.")
+	exit(1)
