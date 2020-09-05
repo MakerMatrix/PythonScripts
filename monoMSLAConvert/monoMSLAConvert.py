@@ -27,48 +27,60 @@ import sys
 G2C = 0
 C2G = 1
 
+# Parse the command line
 try:
 	infile = sys.argv[1]
 	outfile = sys.argv[2]
 except:
-	print ("Usage: " + sys.argv[0] + " inFile outFile")
+	print ("Usage: " + sys.argv[0] + " <inFile> <outFile>")
 	exit()
 
+# Open the input image
 inImg = Image.open(infile)
-print( infile + " is " + str(inImg.size) + " " + inImg.mode)
+#print( infile + " is " + str(inImg.size) + " " + inImg.mode)
 
+# Get the input image type and decide which way we will convert it
 inType = inImg.mode
 if inType == "RGB" or inType == "RGBA":
 	inImg = inImg.convert("RGB")
 	converting = C2G
+	print("Converting", inImg.size, "RGB-encoded mono image to full-resolution grayscale.") 
 elif inType == "LA" or inType == "L":
 	inImg = inImg.convert("L")
 	converting = G2C
+	print("Converting", inImg.size, "Full-resolution grayscale image to RGB-encoded mono.")
 else:
 	print( "You did not supply a suitable image.\nRGB, RGB/alpha, ")
 	print( "8-bit grayscale or 8-bit grayscale/alpha are supported.")
 	exit()
 
+# Do an rgb-encoded to grayscale conversion
 if converting == C2G:
-	rgbPixels = inImg.load()
+	rgbPixels = inImg.load() # Create a pixel access object
+	# Create empty grayscale output image with the converted X-dimension
 	outImg = Image.new("L", (inImg.width*3, inImg.height))
-	grayPixels = outImg.load()
-	for x in range(inImg.width):
-		for y in range(outImg.height):
-			for channel in range(3):
+	grayPixels = outImg.load() # Create a pixel object for converted output
+	for x in range(inImg.width):  # Loop over the columns
+		for y in range(outImg.height):  # Loop over the rows
+			for channel in range(3):  # Loop over this pixel's R, G, B channels
+				# Build a gray pixel from the current channel's value
 				newPixel = (rgbPixels[x, y][channel])
+				# Assign the new gray pixel into the correct full-res index
 				grayPixels[((x*3)+channel), y] = newPixel
-				
+# Do a grayscale to rgb-encoded conversion				
 elif converting == G2C:
-	grayPixels = inImg.load()
-	outImg = Image.new("RGB", (int(inImg.width/3), inImg.height))
-	rgbPixels = outImg.load()
-	for x in range(outImg.width):
-			inX = x * 3
-			for y in range(outImg.height):
+	grayPixels = inImg.load() # Pixel access object
+	# Create empty RGB output image with the converted X-dimension
+	outImg = Image.new("RGB", (int(inImg.width/3), inImg.height)) #
+	rgbPixels = outImg.load() # Create pixel object for converted output
+	for x in range(outImg.width): # Loop over the output columns
+			inX = x * 3 # The input X-dimension is 3x the output rgb X-dimension.
+			for y in range(outImg.height):  # Loop over the rows
+				# Build a new rgb-encoded pixel from the next three gray pixels
 				newPixel = (grayPixels[inX, y],
 							grayPixels[inX+1, y],
 							grayPixels[inX+2, y])
-				rgbPixels[x, y] = newPixel
+				rgbPixels[x, y] = newPixel # Assign the rgb-encoded pixel
 
+# Save the converted image
 outImg.save(outfile)
