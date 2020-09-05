@@ -78,8 +78,8 @@ elif converting == G2C:
 		for y in range(outImg.height):  # Loop over the rows
 			# Build a new rgb-encoded pixel from the next three gray pixels
 			newPixel = (grayPixels[inX, y],
-						grayPixels[inX+1, y],
-						grayPixels[inX+2, y])
+					grayPixels[inX+1, y],
+					grayPixels[inX+2, y])
 			rgbPixels[x, y] = newPixel # Assign the rgb-encoded pixel
 
 # Save the converted image
